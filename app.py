@@ -6,7 +6,7 @@ import streamlit as st
 # Lista completa de tickers no formato para Yahoo Finanças
 tickers_com_extensao = [
     'ABCB4.SA', 'BRSR6.SA', 'BBSE3.SA', 'BBDC3.SA', 'BBDC4.SA', 'BRAP4.SA', 'BBAS3.SA', 'AGRO3.SA',
-    'CXSE3.SA', 'CMIG3.SA', 'CMIG4.SA', 'CIEL3.SA', 'CSMG3.SA', 'CPLE3.SA', 'CPLE6.SA', 'CPFE3.SA',
+    'CXSE3.SA', 'CMIG3.SA', 'CMIG4.SA', 'CSMG3.SA', 'CPLE3.SA', 'CPLE6.SA', 'CPFE3.SA',
     'CMIN3.SA', 'CURY3.SA', 'DIRR3.SA', 'EGIE3.SA', 'FESA4.SA', 'FLRY3.SA', 'GGBR4.SA', 'GOAU4.SA',
     'RANI3.SA', 'ITSA4.SA', 'JBSS3.SA', 'JHSF3.SA', 'KEPL3.SA', 'KLBN11.SA', 'LAVV3.SA', 'POMO4.SA',
     'LEVE3.SA', 'BEEF3.SA', 'MTRE3.SA', 'PETR3.SA', 'PETR4.SA', 'PLPL3.SA', 'POSI3.SA', 'SAPR4.SA',
