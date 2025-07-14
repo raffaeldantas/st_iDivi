@@ -11,7 +11,7 @@ tickers_com_extensao = [
     'RANI3.SA', 'ITSA4.SA', 'JBSS3.SA', 'JHSF3.SA', 'KEPL3.SA', 'KLBN11.SA', 'LAVV3.SA', 'POMO4.SA',
     'LEVE3.SA', 'BEEF3.SA', 'MTRE3.SA', 'PETR3.SA', 'PETR4.SA', 'PLPL3.SA', 'POSI3.SA', 'SAPR4.SA',
     'SANB11.SA', 'STBP3.SA', 'CSNA3.SA', 'TAEE11.SA', 'TASA4.SA', 'TGMA3.SA', 'VIVT3.SA', 'TIMS3.SA',
-    'TRPL4.SA', 'UNIP6.SA', 'USIM5.SA', 'VALE3.SA', 'WIZC3.SA'
+    'ISAE4.SA', 'UNIP6.SA', 'USIM5.SA', 'VALE3.SA', 'WIZC3.SA'
 ]
 
 # Função para obter o Dividend Yield de uma empresa usando o yfinance
