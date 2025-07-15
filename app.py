@@ -15,7 +15,7 @@ tickers_com_extensao = [
     'TRPL4.SA', 'UNIP6.SA', 'USIM5.SA', 'VALE3.SA', 'WIZC3.SA' # Nota: ISAE4.SA foi trocado por TRPL4.SA para exemplo, pois às vezes ISAE4 não retorna dados.
 ]
 
-@st.cache_data # Adicionado cache do Streamlit para não recarregar os dados a cada interação
+@st.cache_data
 def carregar_dados_acoes(tickers):
     """
     Busca e processa todos os dados necessários para uma lista de tickers.
@@ -23,45 +23,44 @@ def carregar_dados_acoes(tickers):
     """
     dados_acoes = []
     
-    # Barra de progresso para o usuário
     progress_bar = st.progress(0, text="Iniciando busca de dados...")
     total_tickers = len(tickers)
 
     for i, ticker in enumerate(tickers):
         try:
-            # Otimização: Cria o objeto Ticker uma única vez por ação
             stock = yf.Ticker(ticker)
             info = stock.info
             
-            # --- Obtenção dos dados a partir do objeto 'info' ---
-            
-            # 1. Valor Atual (Preço)
+            # --- Obtenção dos dados ---
             valor_atual = info.get('regularMarketPrice')
             if valor_atual is None:
                  hist = stock.history(period="1d")
                  if not hist.empty:
                     valor_atual = hist['Close'].iloc[-1]
 
-            # 2. Dividend Yield (Cálculo Manual e Robusto)
-            # O campo 'dividendYield' da API pode ser instável. Calculamos manualmente.
-            # DY = (Dividendos Anuais por Ação) / (Preço da Ação)
-            dividend_rate = info.get('dividendRate') # Valor anual do dividendo por ação (ex: R$ 1.50)
-            dy_percent = 0.0 # Valor padrão
-
-            # Garante que temos os dados necessários e evita divisão por zero
+            dividend_rate = info.get('dividendRate')
+            dy_percent = 0.0
             if dividend_rate is not None and valor_atual is not None and valor_atual > 0:
                 dy_ratio = dividend_rate / valor_atual
                 dy_percent = round(dy_ratio * 100, 2)
             
-            # 3. LPA (Lucro por Ação) e VPA (Valor Patrimonial por Ação)
             lpa = info.get('trailingEps')
             vpa = info.get('bookValue')
+
+            # --- NOVO: VERIFICAÇÃO DE SANIDADE PARA O LPA ---
+            # Ocasionalmente, a API retorna valores absurdos para o LPA.
+            # Se o módulo do LPA for maior que o dobro do preço, consideramos um erro
+            # e o anulamos para não poluir o cálculo de Graham.
+            if valor_atual is not None and lpa is not None and valor_atual > 0:
+                if abs(lpa) > (valor_atual * 2):
+                    lpa = None # Anula o LPA por ser irrealista
 
             # --- Cálculos ---
             valor_intrinseco = None
             diferenca = None
             margem_seguranca = None
 
+            # A lógica a seguir já lida com lpa=None, então não precisamos mudar mais nada.
             if lpa is not None and vpa is not None and lpa > 0:
                 valor_intrinseco = round(np.sqrt(22.5 * lpa * vpa), 2)
                 
