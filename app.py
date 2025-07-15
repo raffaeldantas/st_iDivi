@@ -1,4 +1,4 @@
-# v.002
+# v.002 - dy
 import pandas as pd
 import numpy as np
 import yfinance as yf
