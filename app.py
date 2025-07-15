@@ -103,9 +103,10 @@ df_acoes['Score (Rank)'] = df_acoes['Rank_DY'] + df_acoes['Rank_Margem']
 # Ordenar pelo Score (menor é melhor, pois é soma de posições no rank)
 df_acoes_ordenado = df_acoes.sort_values(by='Score (Rank)', ascending=True)
 
-# --- ADIÇÃO CRÍTICA AQUI: Resetar o índice ---
+# --- ADIÇÃO CRÍTICA AQUI: Resetar o índice e adcionar +1 ---
 # Isso cria um novo índice sequencial de 0 a N-1, que será exibido como a primeira coluna
 df_acoes_ordenado = df_acoes_ordenado.reset_index(drop=True)
+df_acoes_ordenado.index = df_acoes_ordenado.index + 1
 
 st.info("""
 **Como usar a tabela:**
