@@ -1,3 +1,4 @@
+# v.002
 import pandas as pd
 import numpy as np
 import yfinance as yf
@@ -23,7 +24,7 @@ def carregar_dados_acoes(tickers):
     dados_acoes = []
     
     # Barra de progresso para o usuário
-    progress_bar = st.progress(0)
+    progress_bar = st.progress(0, text="Iniciando busca de dados...")
     total_tickers = len(tickers)
 
     for i, ticker in enumerate(tickers):
@@ -32,19 +33,26 @@ def carregar_dados_acoes(tickers):
             stock = yf.Ticker(ticker)
             info = stock.info
             
-            # --- Obtenção dos dados a partir do objeto 'info' e 'history' ---
+            # --- Obtenção dos dados a partir do objeto 'info' ---
             
-            # 1. Dividend Yield
-            dy = info.get('dividendYield')
-            dy_percent = round(dy * 100, 2) if dy is not None else 0.0
-
-            # 2. Valor Atual (usando 'regularMarketPrice' que é mais rápido que history())
+            # 1. Valor Atual (Preço)
             valor_atual = info.get('regularMarketPrice')
-            if valor_atual is None: # Plano B caso a chave não exista
+            if valor_atual is None:
                  hist = stock.history(period="1d")
                  if not hist.empty:
                     valor_atual = hist['Close'].iloc[-1]
 
+            # 2. Dividend Yield (Cálculo Manual e Robusto)
+            # O campo 'dividendYield' da API pode ser instável. Calculamos manualmente.
+            # DY = (Dividendos Anuais por Ação) / (Preço da Ação)
+            dividend_rate = info.get('dividendRate') # Valor anual do dividendo por ação (ex: R$ 1.50)
+            dy_percent = 0.0 # Valor padrão
+
+            # Garante que temos os dados necessários e evita divisão por zero
+            if dividend_rate is not None and valor_atual is not None and valor_atual > 0:
+                dy_ratio = dividend_rate / valor_atual
+                dy_percent = round(dy_ratio * 100, 2)
+            
             # 3. LPA (Lucro por Ação) e VPA (Valor Patrimonial por Ação)
             lpa = info.get('trailingEps')
             vpa = info.get('bookValue')
@@ -54,16 +62,14 @@ def carregar_dados_acoes(tickers):
             diferenca = None
             margem_seguranca = None
 
-            if lpa is not None and vpa is not None and lpa > 0: # Graham não se aplica a empresas com prejuízo (LPA < 0)
-                # 4. Valor Intrínseco (Fórmula de Graham)
+            if lpa is not None and vpa is not None and lpa > 0:
                 valor_intrinseco = round(np.sqrt(22.5 * lpa * vpa), 2)
                 
-                # 5. Diferença e Margem de Segurança
                 if valor_atual is not None:
                     diferenca = round(valor_intrinseco - valor_atual, 2)
                     margem_seguranca = round((diferenca / valor_atual) * 100, 2) if valor_atual > 0 else 0
 
-            # Adiciona todos os dados processados a uma lista de dicionários
+            # Adiciona todos os dados processados à lista
             dados_acoes.append({
                 'Ticker': ticker.replace('.SA', ''),
                 'DY (%)': dy_percent,
@@ -76,14 +82,12 @@ def carregar_dados_acoes(tickers):
             })
 
         except Exception as e:
-            # Tratamento de erro caso a API falhe para um ticker específico
             print(f"Não foi possível obter dados para {ticker}: {e}")
             dados_acoes.append({'Ticker': ticker.replace('.SA', ''), 'DY (%)': 'Erro', 'Valor Atual (R$)': 'Erro'})
         
-        # Atualiza a barra de progresso
         progress_bar.progress((i + 1) / total_tickers, text=f"Buscando dados para {ticker}...")
     
-    progress_bar.empty() # Remove a barra de progresso ao concluir
+    progress_bar.empty()
     return pd.DataFrame(dados_acoes)
 
 # --- Layout do aplicativo com Streamlit ---
