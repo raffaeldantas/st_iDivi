@@ -119,7 +119,10 @@ st.dataframe(df_acoes_ordenado.style.format({
     'VPA': '{:.2f}',
     'Valor Intrínseco (R$)': 'R$ {:.2f}',
     'Diferença (R$)': 'R$ {:.2f}',
-    'Margem Segurança (%)': '{:.2f}%'
+    'Margem Segurança (%)': '{:.2f}%',
+    'Rank_DY': '{:.0f}',       # Adicionado para formatar como inteiro
+    'Rank_Margem': '{:.0f}',   # Adicionado para formatar como inteiro
+    'Score (Rank)': '{:.0f}'   # Adicionado para formatar como inteiro
 }, na_rep='-'))
 
 
